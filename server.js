@@ -23,7 +23,7 @@ const sessionStore = new MySQLStore({}, pool);
 
 app.use(session({
   key: process.env.SESSION_NAME,
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'railway',
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
