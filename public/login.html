@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - La Desesperanza</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="login-body">
+  <div class="login-container">
+    <div class="login-decoration">
+      <div class="skull">💀</div>
+      <div class="pumpkin">🎃</div>
+    </div>
+
+    <div class="login-box">
+      <h1>🎃 Iniciar Sesión</h1>
+      <p class="login-subtitle">Panadería La Desesperanza</p>
+
+      <!-- Mensajes de error/éxito -->
+      <div id="loginMessage" class="message" style="display: none;"></div>
+
+      <!-- Formulario de Login -->
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label for="loginEmail">📧 Correo Electrónico</label>
+          <input 
+            type="email" 
+            id="loginEmail" 
+            name="email" 
+            placeholder="tu@email.com"
+            required
+          >
+          <span class="error-message" id="emailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">🔒 Contraseña</label>
+          <input 
+            type="password" 
+            id="loginPassword" 
+            name="password" 
+            placeholder="••••••••"
+            required
+          >
+          <span class="error-message" id="passwordError"></span>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          Entrar 👻
+        </button>
+      </form>
+
+      <div class="form-footer">
+        <p>¿No tienes cuenta? <a href="#" id="showRegister">Regístrate aquí</a></p>
+        <p><a href="index.html">← Volver al inicio</a></p>
+      </div>
+    </div>
+
+    <!-- Formulario de Registro (oculto inicialmente) -->
+    <div class="login-box" id="registerBox" style="display: none;">
+      <h1>🎃 Crear Cuenta</h1>
+      <p class="login-subtitle">Únete a La Desesperanza</p>
+
+      <div id="registerMessage" class="message" style="display: none;"></div>
+
+      <form id="registerForm" class="auth-form">
+        <div class="form-group">
+          <label for="registerNombre">👤 Nombre Completo</label>
+          <input 
+            type="text" 
+            id="registerNombre" 
+            name="nombre" 
+            placeholder="Tu nombre"
+            required
+            minlength="3"
+          >
+          <span class="error-message" id="nombreError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="registerEmail">📧 Correo Electrónico</label>
+          <input 
+            type="email" 
+            id="registerEmail" 
+            name="email" 
+            placeholder="tu@email.com"
+            required
+          >
+          <span class="error-message" id="regEmailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPassword">🔒 Contraseña</label>
+          <input 
+            type="password" 
+            id="registerPassword" 
+            name="password" 
+            placeholder="Mínimo 6 caracteres"
+            required
+            minlength="6"
+          >
+          <span class="error-message" id="regPasswordError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">🔒 Confirmar Contraseña</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            name="confirmPassword" 
+            placeholder="Repite tu contraseña"
+            required
+          >
+          <span class="error-message" id="confirmPasswordError"></span>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          Registrarse 🎃
+        </button>
+      </form>
+
+      <div class="form-footer">
+        <p>¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/validaciones.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

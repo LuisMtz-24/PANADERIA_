@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control - La Desesperanza</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>🎃 Panel de Control</h1>
+      <div class="user-info">
+        <span id="userName">Usuario</span>
+        <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación Dashboard -->
+  <nav class="dashboard-nav">
+    <ul>
+      <li><a href="dashboard.html" class="active">📊 Dashboard</a></li>
+      <li><a href="productos.html">🍞 Productos</a></li>
+      <li><a href="inventario.html">📦 Inventario</a></li>
+      <li><a href="clientes.html">👥 Clientes</a></li>
+      <li><a href="pedidos.html">🛒 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <!-- Contenido Principal -->
+  <main class="dashboard-content">
+    <!-- Cards de Estadísticas -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🍞</div>
+        <div class="stat-info">
+          <h3>Total Productos</h3>
+          <p class="stat-number" id="totalProductos">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-info">
+          <h3>Stock Total</h3>
+          <p class="stat-number" id="totalStock">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <h3>Clientes</h3>
+          <p class="stat-number" id="totalClientes">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-info">
+          <h3>Pedidos Activos</h3>
+          <p class="stat-number" id="pedidosActivos">0</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alertas de Stock Bajo -->
+    <section class="alerts-section">
+      <h2>⚠️ Alertas de Stock Bajo</h2>
+      <div id="alertasStock" class="alerts-container">
+        <div class="loading">Cargando alertas...</div>
+      </div>
+    </section>
+
+    <!-- Pedidos Recientes -->
+    <section class="recent-orders">
+      <h2>🛒 Pedidos Recientes</h2>
+      <div class="table-container">
+        <table id="tablaPedidosRecientes">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="6" class="loading">Cargando pedidos...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/validaciones.js"></script>
+  <script>
+    // Verificar autenticación
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/auth/session');
+        const data = await response.json();
+        
+        if (!data.authenticated) {
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        document.getElementById('userName').textContent = data.user.nombre;
+        loadDashboardData();
+      } catch (error) {
+        console.error('Error verificando sesión:', error);
+        window.location.href = 'login.html';
+      }
+    }
+
+    async function loadDashboardData() {
+      try {
+        // Cargar estadísticas
+        const [productos, inventario, clientes, pedidos] = await Promise.all([
+          fetch('/api/productos').then(r => r.json()),
+          fetch('/api/inventario').then(r => r.json()),
+          fetch('/api/clientes').then(r => r.json()),
+          fetch('/api/pedidos').then(r => r.json())
+        ]);
+
+        document.getElementById('totalProductos').textContent = productos.length;
+        document.getElementById('totalStock').textContent = 
+          inventario.reduce((sum, item) => sum + item.Cantidad_Actual, 0);
+        document.getElementById('totalClientes').textContent = clientes.length;
+        document.getElementById('pedidosActivos').textContent = 
+          pedidos.filter(p => p.Estado_Actual !== 'Entregado' && p.Estado_Actual !== 'Cancelado').length;
+
+        // Cargar alertas de stock bajo
+        loadStockAlertas();
+        loadPedidosRecientes();
+
+      } catch (error) {
+        console.error('Error cargando datos del dashboard:', error);
+      }
+    }
+
+    async function loadStockAlertas() {
+      try {
+        const response = await fetch('/api/inventario/stock-bajo?limite=5');
+        const productos = await response.json();
+
+        const container = document.getElementById('alertasStock');
+        
+        if (productos.length === 0) {
+          container.innerHTML = '<p class="no-alerts">✅ No hay alertas de stock</p>';
+          return;
+        }
+
+        container.innerHTML = productos.map(p => `
+          <div class="alert-item">
+            <span class="alert-icon">⚠️</span>
+            <div class="alert-content">
+              <strong>${p.Nombre}</strong>
+              <p>Stock disponible: ${p.Disponible} unidades</p>
+            </div>
+            <a href="inventario.html?producto=${p.ID_Producto}" class="btn-alert">
+              Reponer
+            </a>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('Error cargando alertas:', error);
+      }
+    }
+
+    async function loadPedidosRecientes() {
+      try {
+        const response = await fetch('/api/pedidos');
+        const pedidos = await response.json();
+
+        const tbody = document.querySelector('#tablaPedidosRecientes tbody');
+        
+        if (pedidos.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6">No hay pedidos registrados</td></tr>';
+          return;
+        }
+
+        const pedidosRecientes = pedidos.slice(0, 10);
+        
+        tbody.innerHTML = pedidosRecientes.map(p => `
+          <tr>
+            <td>#${p.ID_Pedido}</td>
+            <td>${p.Cliente} ${p.Apellido || ''}</td>
+            <td>${new Date(p.Fecha).toLocaleDateString('es-MX')}</td>
+            <td>$${p.Total ? p.Total.toFixed(2) : '0.00'}</td>
+            <td><span class="badge badge-${getEstadoClass(p.Estado_Actual)}">${p.Estado_Actual || 'Pendiente'}</span></td>
+            <td>
+              <a href="pedidos.html?id=${p.ID_Pedido}" class="btn-small">Ver</a>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (error) {
+        console.error('Error cargando pedidos:', error);
+      }
+    }
+
+    function getEstadoClass(estado) {
+      const estados = {
+        'Pendiente': 'warning',
+        'En Preparación': 'info',
+        'En Camino': 'primary',
+        'Entregado': 'success',
+        'Cancelado': 'danger'
+      };
+      return estados[estado] || 'secondary';
+    }
+
+    async function logout() {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        window.location.href = 'index.html';
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+      }
+    }
+
+    // Inicializar
+    checkAuth();
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎃 Panadería La Desesperanza</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header con animación de Halloween -->
+  <header class="header-halloween">
+    <div class="skull-decoration">💀</div>
+    <h1 class="main-title">🎃 Panadería La Desesperanza 🎃</h1>
+    <p class="subtitle">Panes de Temporada - Halloween & Día de Muertos</p>
+    <div class="pumpkin-decoration">🎃</div>
+  </header>
+
+  <!-- Navegación -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html" class="active">🏠 Inicio</a></li>
+      <li><a href="productos.html">🍞 Productos</a></li>
+      <li><a href="login.html">🔐 Iniciar Sesión</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h2>¡Especial de Temporada!</h2>
+      <p>Pan de Muerto, Calaveras de Azúcar y más...</p>
+      <button class="btn-primary" onclick="window.location.href='productos.html'">
+        Ver Productos 👻
+      </button>
+    </div>
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600" alt="Pan de Muerto">
+    </div>
+  </section>
+
+  <!-- Galería de Productos Destacados -->
+  <section class="featured-products">
+    <h2>🎃 Productos Destacados de Temporada 🎃</h2>
+    <div class="product-grid" id="productosDestacados">
+      <!-- Los productos se cargarán dinámicamente -->
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Cargando productos...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección Sobre Nosotros -->
+  <section class="about-section">
+    <div class="about-content">
+      <h2>💀 Sobre La Desesperanza 💀</h2>
+      <p>
+        En Panadería La Desesperanza, celebramos las tradiciones mexicanas con 
+        panes artesanales de temporada. Nuestro pan de muerto es elaborado con 
+        recetas tradicionales y los mejores ingredientes.
+      </p>
+      <div class="features">
+        <div class="feature">
+          <span class="icon">🍞</span>
+          <h3>Recetas Tradicionales</h3>
+          <p>Seguimos las recetas ancestrales mexicanas</p>
+        </div>
+        <div class="feature">
+          <span class="icon">🎃</span>
+          <h3>Productos de Temporada</h3>
+          <p>Especiales para Halloween y Día de Muertos</p>
+        </div>
+        <div class="feature">
+          <span class="icon">⭐</span>
+          <h3>Calidad Premium</h3>
+          <p>Ingredientes frescos y de la mejor calidad</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>🎃 Panadería La Desesperanza</h3>
+        <p>Tradición y sabor en cada bocado</p>
+      </div>
+      <div class="footer-section">
+        <h4>Contacto</h4>
+        <p>📧 contacto@ladesesperanza.com</p>
+        <p>📱 +52 55 1234 5678</p>
+      </div>
+      <div class="footer-section">
+        <h4>Horario</h4>
+        <p>Lunes a Viernes: 7:00 AM - 8:00 PM</p>
+        <p>Sábados y Domingos: 8:00 AM - 6:00 PM</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Panadería La Desesperanza. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
