@@ -23,8 +23,8 @@
   <nav class="dashboard-nav">
     <ul>
       <li><a href="dashboard.html" class="active">📊 Dashboard</a></li>
-      <li><a href="productos.html">🍞 Productos</a></li>
-      <li><a href="inventario.html">📦 Inventario</a></li>
+      <li><a href="productos.html">🍞 productos</a></li>
+      <li><a href="inventario.html">📦 inventario</a></li>
       <li><a href="clientes.html">👥 Clientes</a></li>
       <li><a href="pedidos.html">🛒 Pedidos</a></li>
     </ul>
@@ -37,8 +37,8 @@
       <div class="stat-card">
         <div class="stat-icon">🍞</div>
         <div class="stat-info">
-          <h3>Total Productos</h3>
-          <p class="stat-number" id="totalProductos">0</p>
+          <h3>Total productos</h3>
+          <p class="stat-number" id="totalproductos">0</p>
         </div>
       </div>
 
@@ -131,7 +131,7 @@
           fetch('/api/pedidos').then(r => r.json())
         ]);
 
-        document.getElementById('totalProductos').textContent = productos.length;
+        document.getElementById('totalproductos').textContent = productos.length;
         document.getElementById('totalStock').textContent = 
           inventario.reduce((sum, item) => sum + item.Cantidad_Actual, 0);
         document.getElementById('totalClientes').textContent = clientes.length;
@@ -166,7 +166,7 @@
               <strong>${p.Nombre}</strong>
               <p>Stock disponible: ${p.Disponible} unidades</p>
             </div>
-            <a href="inventario.html?producto=${p.ID_Producto}" class="btn-alert">
+            <a href="inventario.html?producto=${p.idproducto}" class="btn-alert">
               Reponer
             </a>
           </div>

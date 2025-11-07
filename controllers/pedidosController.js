@@ -13,7 +13,7 @@ exports.getAll = async (req, res, next) => {
         c.Apellido,
         e.Estado as Estado_Actual,
         dp.Total,
-        COUNT(det.ID_Detalle) as Total_Productos
+        COUNT(det.ID_Detalle) as Total_productos
       FROM Pedido p
       INNER JOIN Cliente c ON p.ID_Cliente = c.ID_Cliente
       LEFT JOIN Seguimiento_Pedido sp ON p.ID_Pedido = sp.ID_Pedido
@@ -76,11 +76,11 @@ exports.getById = async (req, res, next) => {
     const [detalles] = await connection.query(`
       SELECT 
         dp.*,
-        pr.Nombre as Producto,
+        pr.Nombre as producto,
         pr.Descripción,
         pr.Unidad_de_Medida
       FROM Detalles_Pedido dp
-      INNER JOIN Producto pr ON dp.ID_Producto = pr.ID_Producto
+      INNER JOIN producto pr ON dp.idproducto = pr.idproducto
       WHERE dp.ID_Pedido = ?
     `, [id]);
 
@@ -89,7 +89,7 @@ exports.getById = async (req, res, next) => {
       SELECT 
         sp.*,
         e.Estado,
-        e.Descripción as Estado_Descripcion
+        e.Descripción as Estado_descripcion
       FROM Seguimiento_Pedido sp
       INNER JOIN CAT_Estados e ON sp.ID_Estado = e.ID_Estado
       WHERE sp.ID_Pedido = ?
@@ -160,14 +160,14 @@ exports.create = async (req, res, next) => {
 
       // Verificar disponibilidad
       const [inventario] = await connection.query(
-        'SELECT Cantidad_Actual, Cantidad_Reservada FROM Inventario WHERE ID_Producto = ?',
+        'SELECT Cantidad_Actual, Cantidad_Reservada FROM inventario WHERE idproducto = ?',
         [producto_id]
       );
 
       if (inventario.length === 0) {
         await connection.rollback();
         return res.status(400).json({
-          error: 'Producto sin inventario',
+          error: 'producto sin inventario',
           message: `El producto ${producto_id} no tiene inventario registrado`
         });
       }
@@ -184,17 +184,17 @@ exports.create = async (req, res, next) => {
 
       // Insertar detalle del pedido
       await connection.query(
-        `INSERT INTO Detalles_Pedido (ID_Pedido, ID_Producto, Cantidad, Precio_Unitario) 
+        `INSERT INTO Detalles_Pedido (ID_Pedido, idproducto, Cantidad, Precio_Unitario) 
          VALUES (?, ?, ?, ?)`,
         [pedidoId, producto_id, cantidad, precio_unitario]
       );
 
       // Actualizar inventario (reservar cantidad)
       await connection.query(
-        `UPDATE Inventario 
+        `UPDATE inventario 
          SET Cantidad_Reservada = Cantidad_Reservada + ?,
              Ultima_Actualización = NOW()
-         WHERE ID_Producto = ?`,
+         WHERE idproducto = ?`,
         [cantidad, producto_id]
       );
     }
@@ -254,19 +254,19 @@ exports.updateEstado = async (req, res, next) => {
     // Si el estado es "Entregado" (ID 4), actualizar inventario
     if (estado_id == 4) {
       const [detallesPedido] = await connection.query(
-        'SELECT ID_Producto, Cantidad FROM Detalles_Pedido WHERE ID_Pedido = ?',
+        'SELECT idproducto, Cantidad FROM Detalles_Pedido WHERE ID_Pedido = ?',
         [id]
       );
 
       for (const detalle of detallesPedido) {
         // Desreservar y reducir cantidad actual
         await connection.query(
-          `UPDATE Inventario 
+          `UPDATE inventario 
            SET Cantidad_Actual = Cantidad_Actual - ?,
                Cantidad_Reservada = Cantidad_Reservada - ?,
                Ultima_Actualización = NOW()
-           WHERE ID_Producto = ?`,
-          [detalle.Cantidad, detalle.Cantidad, detalle.ID_Producto]
+           WHERE idproducto = ?`,
+          [detalle.Cantidad, detalle.Cantidad, detalle.idproducto]
         );
 
         // Registrar salida
@@ -276,9 +276,9 @@ exports.updateEstado = async (req, res, next) => {
         );
 
         await connection.query(
-          `INSERT INTO Movimiento_Salida (ID_Producto, Fecha, Cantidad, Referencia) 
+          `INSERT INTO Movimiento_Salida (idproducto, Fecha, Cantidad, Referencia) 
            VALUES (?, NOW(), ?, ?)`,
-          [detalle.ID_Producto, detalle.Cantidad, pedidoRef[0].Referencia]
+          [detalle.idproducto, detalle.Cantidad, pedidoRef[0].Referencia]
         );
       }
     }
@@ -286,18 +286,18 @@ exports.updateEstado = async (req, res, next) => {
     // Si el estado es "Cancelado" (ID 5), liberar inventario reservado
     if (estado_id == 5) {
       const [detallesPedido] = await connection.query(
-        'SELECT ID_Producto, Cantidad FROM Detalles_Pedido WHERE ID_Pedido = ?',
+        'SELECT idproducto, Cantidad FROM Detalles_Pedido WHERE ID_Pedido = ?',
         [id]
       );
 
       for (const detalle of detallesPedido) {
         // Liberar cantidad reservada
         await connection.query(
-          `UPDATE Inventario 
+          `UPDATE inventario 
            SET Cantidad_Reservada = Cantidad_Reservada - ?,
                Ultima_Actualización = NOW()
-           WHERE ID_Producto = ?`,
-          [detalle.Cantidad, detalle.ID_Producto]
+           WHERE idproducto = ?`,
+          [detalle.Cantidad, detalle.idproducto]
         );
       }
     }
@@ -392,17 +392,17 @@ exports.cancelar = async (req, res, next) => {
 
     // Liberar inventario reservado
     const [detallesPedido] = await connection.query(
-      'SELECT ID_Producto, Cantidad FROM Detalles_Pedido WHERE ID_Pedido = ?',
+      'SELECT idproducto, Cantidad FROM Detalles_Pedido WHERE ID_Pedido = ?',
       [id]
     );
 
     for (const detalle of detallesPedido) {
       await connection.query(
-        `UPDATE Inventario 
+        `UPDATE inventario 
          SET Cantidad_Reservada = Cantidad_Reservada - ?,
              Ultima_Actualización = NOW()
-         WHERE ID_Producto = ?`,
-        [detalle.Cantidad, detalle.ID_Producto]
+         WHERE idproducto = ?`,
+        [detalle.Cantidad, detalle.idproducto]
       );
     }
 

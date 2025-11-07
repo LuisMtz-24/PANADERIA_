@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes - La Desesperanza</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>👥 Gestión de Clientes</h1>
+      <div class="user-info">
+        <span id="userName">Usuario</span>
+        <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="dashboard-nav">
+    <ul>
+      <li><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="productos.html">🍞 productos</a></li>
+      <li><a href="inventario.html">📦 inventario</a></li>
+      <li><a href="clientes.html" class="active">👥 Clientes</a></li>
+      <li><a href="pedidos.html">🛒 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <main class="dashboard-content">
+    <section style="background: rgba(45, 27, 0, 0.8); padding: 20px; border-radius: 15px; margin-bottom: 30px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <input type="text" id="searchClientes" placeholder="🔍 Buscar clientes..." 
+          style="flex: 1; min-width: 250px; padding: 10px; border-radius: 8px; border: 2px solid rgba(255, 149, 0, 0.3); background: rgba(0, 0, 0, 0.3); color: var(--color-light);">
+        <button onclick="showAddModal()" class="btn-primary" style="padding: 10px 20px;">
+          ➕ Nuevo Cliente
+        </button>
+      </div>
+    </section>
+
+    <div class="table-container" style="background: rgba(45, 27, 0, 0.8); padding: 30px; border-radius: 15px;">
+      <table id="tablaClientes">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Total Pedidos</th>
+            <th>Total Compras</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="7" class="loading">Cargando clientes...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal para agregar/editar cliente -->
+  <div id="clienteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px; overflow-y: auto;">
+    <div style="max-width: 600px; margin: 50px auto; background: rgba(45, 27, 0, 0.95); border-radius: 15px; padding: 30px; border: 2px solid rgba(255, 149, 0, 0.3);">
+      <h2 id="modalTitle" style="color: var(--color-accent); margin-bottom: 20px;">Nuevo Cliente</h2>
+      <form id="clienteForm" style="display: flex; flex-direction: column; gap: 15px;">
+        <input type="hidden" id="clienteId">
+        
+        <div class="form-group">
+          <label>👤 Nombre</label>
+          <input type="text" id="nombre" required>
+        </div>
+        
+        <div class="form-group">
+          <label>👤 Apellido</label>
+          <input type="text" id="apellido">
+        </div>
+        
+        <div class="form-group">
+          <label>📧 Correo</label>
+          <input type="email" id="correo" required>
+        </div>
+        
+        <div class="form-group">
+          <label>📱 Teléfono</label>
+          <input type="tel" id="telefono">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+          <button type="submit" class="btn-primary" style="flex: 1; padding: 12px;">Guardar</button>
+          <button type="button" onclick="closeModal()" class="btn-logout" style="flex: 1; padding: 12px;">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/validaciones.js"></script>
+  <script src="js/clientes.js"></script>
+</body>
+</html>

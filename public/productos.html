@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>productos - La Desesperanza</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>🍞 productos</h1>
+      <div class="user-info">
+        <span id="userName">Invitado</span>
+        <button onclick="handleAuth()" class="btn-logout" id="authBtn">Iniciar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="dashboard-nav">
+    <ul>
+      <li><a href="index.html">🏠 Inicio</a></li>
+      <li><a href="productos.html" class="active">🍞 productos</a></li>
+      <li><a href="dashboard.html" id="dashboardLink" style="display:none;">📊 Dashboard</a></li>
+    </ul>
+  </nav>
+
+  <main class="dashboard-content">
+    <section class="filters-section" style="background: rgba(45, 27, 0, 0.8); padding: 20px; border-radius: 15px; margin-bottom: 30px;">
+      <h2 style="color: var(--color-accent); margin-bottom: 15px;">Filtrar productos</h2>
+      <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar productos..." 
+          style="flex: 1; min-width: 250px; padding: 10px; border-radius: 8px; border: 2px solid rgba(255, 149, 0, 0.3); background: rgba(0, 0, 0, 0.3); color: var(--color-light);">
+        <button onclick="filterTemporada()" class="btn-primary" style="padding: 10px 20px;">
+          🎃 Solo Temporada
+        </button>
+        <button onclick="loadproductos()" class="btn-primary" style="padding: 10px 20px;">
+          📋 Todos
+        </button>
+      </div>
+    </section>
+
+    <div id="productosGrid" class="product-grid">
+      <div class="loading"><div class="spinner"></div><p>Cargando productos...</p></div>
+    </div>
+  </main>
+
+  <script src="js/validaciones.js"></script>
+  <script src="js/productos.js"></script>
+</body>
+</html>

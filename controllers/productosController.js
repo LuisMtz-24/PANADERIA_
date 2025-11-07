@@ -6,18 +6,18 @@ exports.getAll = async (req, res, next) => {
   try {
     const [productos] = await connection.query(`
       SELECT 
-        p.ID_Producto,
+        p.idproducto,
         p.Nombre,
         p.Descripción,
         p.Unidad_de_Medida,
-        p.Precio_Venta,
+        p.precio_venta,
         c.Nombre as Categoria,
         COALESCE(i.Cantidad_Actual, 0) as Stock,
-        f.URL_Foto
-      FROM Producto p
-      LEFT JOIN Categoría c ON p.ID_Categoría = c.ID_Categoría
-      LEFT JOIN Inventario i ON p.ID_Producto = i.ID_Producto
-      LEFT JOIN Foto f ON p.ID_Producto = f.ID_Producto
+        f.URL_foto
+      FROM producto p
+      LEFT JOIN categoria c ON p.ID_categoria = c.ID_categoria
+      LEFT JOIN inventario i ON p.idproducto = i.idproducto
+      LEFT JOIN foto f ON p.idproducto = f.idproducto
       ORDER BY p.Nombre
     `);
 
@@ -40,17 +40,17 @@ exports.getById = async (req, res, next) => {
         p.*,
         c.Nombre as Categoria,
         COALESCE(i.Cantidad_Actual, 0) as Stock,
-        f.URL_Foto
-      FROM Producto p
-      LEFT JOIN Categoría c ON p.ID_Categoría = c.ID_Categoría
-      LEFT JOIN Inventario i ON p.ID_Producto = i.ID_Producto
-      LEFT JOIN Foto f ON p.ID_Producto = f.ID_Producto
-      WHERE p.ID_Producto = ?
+        f.URL_foto
+      FROM producto p
+      LEFT JOIN categoria c ON p.ID_categoria = c.ID_categoria
+      LEFT JOIN inventario i ON p.idproducto = i.idproducto
+      LEFT JOIN foto f ON p.idproducto = f.idproducto
+      WHERE p.idproducto = ?
     `, [id]);
 
     if (productos.length === 0) {
       return res.status(404).json({
-        error: 'Producto no encontrado',
+        error: 'producto no encontrado',
         message: `No existe un producto con ID ${id}`
       });
     }
@@ -88,7 +88,7 @@ exports.create = async (req, res, next) => {
 
     // Insertar producto
     const [result] = await connection.query(
-      `INSERT INTO Producto (Nombre, Descripción, ID_Categoría, Unidad_de_Medida, Precio_Venta) 
+      `INSERT INTO producto (Nombre, Descripción, ID_categoria, Unidad_de_Medida, precio_venta) 
        VALUES (?, ?, ?, ?, ?)`,
       [nombre, descripcion, categoria_id, unidad_medida || 'Pieza', precio_venta]
     );
@@ -98,14 +98,14 @@ exports.create = async (req, res, next) => {
     // Crear inventario inicial
     if (stock_inicial && stock_inicial > 0) {
       await connection.query(
-        `INSERT INTO Inventario (ID_Producto, Cantidad_Actual, Cantidad_Reservada, Ultima_Actualización) 
+        `INSERT INTO inventario (idproducto, Cantidad_Actual, Cantidad_Reservada, Ultima_Actualización) 
          VALUES (?, ?, 0, NOW())`,
         [productoId, stock_inicial]
       );
 
       // Registrar movimiento de entrada
       await connection.query(
-        `INSERT INTO Movimiento_Entrada (ID_Producto, Fecha, Cantidad) 
+        `INSERT INTO Movimiento_Entrada (idproducto, Fecha, Cantidad) 
          VALUES (?, NOW(), ?)`,
         [productoId, stock_inicial]
       );
@@ -114,7 +114,7 @@ exports.create = async (req, res, next) => {
     // Agregar foto si se proporciona
     if (url_foto) {
       await connection.query(
-        'INSERT INTO Foto (ID_Producto, URL_Foto) VALUES (?, ?)',
+        'INSERT INTO foto (idproducto, URL_foto) VALUES (?, ?)',
         [productoId, url_foto]
       );
     }
@@ -122,7 +122,7 @@ exports.create = async (req, res, next) => {
     await connection.commit();
 
     res.status(201).json({
-      message: 'Producto creado exitosamente',
+      message: 'producto creado exitosamente',
       productoId
     });
 
@@ -143,47 +143,47 @@ exports.update = async (req, res, next) => {
 
     // Verificar que el producto existe
     const [existing] = await connection.query(
-      'SELECT ID_Producto FROM Producto WHERE ID_Producto = ?',
+      'SELECT idproducto FROM producto WHERE idproducto = ?',
       [id]
     );
 
     if (existing.length === 0) {
       return res.status(404).json({
-        error: 'Producto no encontrado',
+        error: 'producto no encontrado',
         message: `No existe un producto con ID ${id}`
       });
     }
 
     // Actualizar producto
     await connection.query(
-      `UPDATE Producto 
-       SET Nombre = ?, Descripción = ?, ID_Categoría = ?, 
-           Unidad_de_Medida = ?, Precio_Venta = ?
-       WHERE ID_Producto = ?`,
+      `UPDATE producto 
+       SET Nombre = ?, Descripción = ?, ID_categoria = ?, 
+           Unidad_de_Medida = ?, precio_venta = ?
+       WHERE idproducto = ?`,
       [nombre, descripcion, categoria_id, unidad_medida, precio_venta, id]
     );
 
     // Actualizar foto si se proporciona
     if (url_foto) {
       const [fotoExist] = await connection.query(
-        'SELECT ID_Foto FROM Foto WHERE ID_Producto = ?',
+        'SELECT ID_foto FROM foto WHERE idproducto = ?',
         [id]
       );
 
       if (fotoExist.length > 0) {
         await connection.query(
-          'UPDATE Foto SET URL_Foto = ? WHERE ID_Producto = ?',
+          'UPDATE foto SET URL_foto = ? WHERE idproducto = ?',
           [url_foto, id]
         );
       } else {
         await connection.query(
-          'INSERT INTO Foto (ID_Producto, URL_Foto) VALUES (?, ?)',
+          'INSERT INTO foto (idproducto, URL_foto) VALUES (?, ?)',
           [id, url_foto]
         );
       }
     }
 
-    res.json({ message: 'Producto actualizado exitosamente' });
+    res.json({ message: 'producto actualizado exitosamente' });
 
   } catch (error) {
     next(error);
@@ -200,21 +200,21 @@ exports.delete = async (req, res, next) => {
 
     // Verificar que el producto existe
     const [existing] = await connection.query(
-      'SELECT ID_Producto FROM Producto WHERE ID_Producto = ?',
+      'SELECT idproducto FROM producto WHERE idproducto = ?',
       [id]
     );
 
     if (existing.length === 0) {
       return res.status(404).json({
-        error: 'Producto no encontrado',
+        error: 'producto no encontrado',
         message: `No existe un producto con ID ${id}`
       });
     }
 
     // Eliminar producto (las claves foráneas deberían manejar las dependencias)
-    await connection.query('DELETE FROM Producto WHERE ID_Producto = ?', [id]);
+    await connection.query('DELETE FROM producto WHERE idproducto = ?', [id]);
 
-    res.json({ message: 'Producto eliminado exitosamente' });
+    res.json({ message: 'producto eliminado exitosamente' });
 
   } catch (error) {
     if (error.code === 'ER_ROW_IS_REFERENCED_2') {
@@ -235,16 +235,16 @@ exports.getTemporada = async (req, res, next) => {
   try {
     const [productos] = await connection.query(`
       SELECT 
-        p.ID_Producto,
+        p.idproducto,
         p.Nombre,
         p.Descripción,
-        p.Precio_Venta,
+        p.precio_venta,
         COALESCE(i.Cantidad_Actual, 0) as Stock,
-        f.URL_Foto
-      FROM Producto p
-      LEFT JOIN Categoría c ON p.ID_Categoría = c.ID_Categoría
-      LEFT JOIN Inventario i ON p.ID_Producto = i.ID_Producto
-      LEFT JOIN Foto f ON p.ID_Producto = f.ID_Producto
+        f.URL_foto
+      FROM producto p
+      LEFT JOIN categoria c ON p.ID_categoria = c.ID_categoria
+      LEFT JOIN inventario i ON p.idproducto = i.idproducto
+      LEFT JOIN foto f ON p.idproducto = f.idproducto
       WHERE c.Nombre LIKE '%temporada%' 
          OR c.Nombre LIKE '%halloween%' 
          OR c.Nombre LIKE '%muertos%'

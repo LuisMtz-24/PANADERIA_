@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>inventario - La Desesperanza</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>📦 Gestión de inventario</h1>
+      <div class="user-info">
+        <span id="userName">Usuario</span>
+        <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="dashboard-nav">
+    <ul>
+      <li><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="productos.html">🍞 productos</a></li>
+      <li><a href="inventario.html" class="active">📦 inventario</a></li>
+      <li><a href="clientes.html">👥 Clientes</a></li>
+      <li><a href="pedidos.html">🛒 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <main class="dashboard-content">
+    <section style="background: rgba(45, 27, 0, 0.8); padding: 20px; border-radius: 15px; margin-bottom: 30px;">
+      <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <button onclick="showEntradaModal()" class="btn-primary" style="padding: 10px 20px;">
+          ➕ Registrar Entrada
+        </button>
+        <button onclick="showSalidaModal()" class="btn-primary" style="padding: 10px 20px; background: #f44336;">
+          ➖ Registrar Salida
+        </button>
+        <input type="text" id="searchinventario" placeholder="🔍 Buscar..." 
+          style="flex: 1; min-width: 250px; padding: 10px; border-radius: 8px; border: 2px solid rgba(255, 149, 0, 0.3); background: rgba(0, 0, 0, 0.3); color: var(--color-light);">
+      </div>
+    </section>
+
+    <div class="table-container" style="background: rgba(45, 27, 0, 0.8); padding: 30px; border-radius: 15px;">
+      <table id="tablainventario">
+        <thead>
+          <tr>
+            <th>producto</th>
+            <th>Stock Total</th>
+            <th>Reservado</th>
+            <th>Disponible</th>
+            <th>Última Actualización</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" class="loading">Cargando inventario...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal Entrada -->
+  <div id="entradaModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px;">
+    <div style="max-width: 500px; margin: 100px auto; background: rgba(45, 27, 0, 0.95); border-radius: 15px; padding: 30px; border: 2px solid rgba(76, 175, 80, 0.5);">
+      <h2 style="color: #4caf50; margin-bottom: 20px;">➕ Registrar Entrada de inventario</h2>
+      <form id="entradaForm" style="display: flex; flex-direction: column; gap: 15px;">
+        <div class="form-group">
+          <label>🍞 producto</label>
+          <select id="entradaproducto" required style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color: var(--color-light); border: 2px solid rgba(76, 175, 80, 0.3);">
+            <option value="">Seleccione un producto</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>📦 Cantidad</label>
+          <input type="number" id="entradaCantidad" min="1" required>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+          <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; background: #4caf50;">Registrar</button>
+          <button type="button" onclick="closeModal('entradaModal')" class="btn-logout" style="flex: 1; padding: 12px;">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Salida -->
+  <div id="salidaModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px;">
+    <div style="max-width: 500px; margin: 100px auto; background: rgba(45, 27, 0, 0.95); border-radius: 15px; padding: 30px; border: 2px solid rgba(244, 67, 54, 0.5);">
+      <h2 style="color: #f44336; margin-bottom: 20px;">➖ Registrar Salida de inventario</h2>
+      <form id="salidaForm" style="display: flex; flex-direction: column; gap: 15px;">
+        <div class="form-group">
+          <label>🍞 producto</label>
+          <select id="salidaproducto" required style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color: var(--color-light); border: 2px solid rgba(244, 67, 54, 0.3);">
+            <option value="">Seleccione un producto</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>📦 Cantidad</label>
+          <input type="number" id="salidaCantidad" min="1" required>
+        </div>
+        
+        <div class="form-group">
+          <label>📋 Referencia (opcional)</label>
+          <input type="text" id="salidaReferencia" placeholder="Ej: Venta, Merma, etc.">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+          <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; background: #f44336;">Registrar</button>
+          <button type="button" onclick="closeModal('salidaModal')" class="btn-logout" style="flex: 1; padding: 12px;">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/validaciones.js"></script>
+  <script src="js/inventario.js"></script>
+</body>
+</html>

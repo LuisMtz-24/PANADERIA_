@@ -6,15 +6,15 @@ exports.getAll = async (req, res, next) => {
   try {
     const [inventario] = await connection.query(`
       SELECT 
-        i.ID_Inventario,
-        i.ID_Producto,
-        p.Nombre as Producto,
+        i.ID_inventario,
+        i.idproducto,
+        p.Nombre as producto,
         i.Cantidad_Actual,
         i.Cantidad_Reservada,
         i.Ultima_Actualización,
         (i.Cantidad_Actual - i.Cantidad_Reservada) as Disponible
-      FROM Inventario i
-      INNER JOIN Producto p ON i.ID_Producto = p.ID_Producto
+      FROM inventario i
+      INNER JOIN producto p ON i.idproducto = p.idproducto
       ORDER BY p.Nombre
     `);
 
@@ -43,27 +43,27 @@ exports.entrada = async (req, res, next) => {
 
     // Registrar movimiento de entrada
     await connection.query(
-      'INSERT INTO Movimiento_Entrada (ID_Producto, Fecha, Cantidad) VALUES (?, NOW(), ?)',
+      'INSERT INTO Movimiento_Entrada (idproducto, Fecha, Cantidad) VALUES (?, NOW(), ?)',
       [producto_id, cantidad]
     );
 
     // Actualizar inventario
     const [inventario] = await connection.query(
-      'SELECT ID_Inventario FROM Inventario WHERE ID_Producto = ?',
+      'SELECT ID_inventario FROM inventario WHERE idproducto = ?',
       [producto_id]
     );
 
     if (inventario.length > 0) {
       await connection.query(
-        `UPDATE Inventario 
+        `UPDATE inventario 
          SET Cantidad_Actual = Cantidad_Actual + ?, 
              Ultima_Actualización = NOW() 
-         WHERE ID_Producto = ?`,
+         WHERE idproducto = ?`,
         [cantidad, producto_id]
       );
     } else {
       await connection.query(
-        `INSERT INTO Inventario (ID_Producto, Cantidad_Actual, Cantidad_Reservada, Ultima_Actualización) 
+        `INSERT INTO inventario (idproducto, Cantidad_Actual, Cantidad_Reservada, Ultima_Actualización) 
          VALUES (?, ?, 0, NOW())`,
         [producto_id, cantidad]
       );
@@ -102,13 +102,13 @@ exports.salida = async (req, res, next) => {
 
     // Verificar disponibilidad
     const [inventario] = await connection.query(
-      'SELECT Cantidad_Actual, Cantidad_Reservada FROM Inventario WHERE ID_Producto = ?',
+      'SELECT Cantidad_Actual, Cantidad_Reservada FROM inventario WHERE idproducto = ?',
       [producto_id]
     );
 
     if (inventario.length === 0) {
       return res.status(404).json({
-        error: 'Producto no encontrado',
+        error: 'producto no encontrado',
         message: 'No existe inventario para este producto'
       });
     }
@@ -124,16 +124,16 @@ exports.salida = async (req, res, next) => {
 
     // Registrar movimiento de salida
     await connection.query(
-      'INSERT INTO Movimiento_Salida (ID_Producto, Fecha, Cantidad, Referencia) VALUES (?, NOW(), ?, ?)',
+      'INSERT INTO Movimiento_Salida (idproducto, Fecha, Cantidad, Referencia) VALUES (?, NOW(), ?, ?)',
       [producto_id, cantidad, referencia]
     );
 
     // Actualizar inventario
     await connection.query(
-      `UPDATE Inventario 
+      `UPDATE inventario 
        SET Cantidad_Actual = Cantidad_Actual - ?, 
            Ultima_Actualización = NOW() 
-       WHERE ID_Producto = ?`,
+       WHERE idproducto = ?`,
       [cantidad, producto_id]
     );
 
@@ -162,14 +162,14 @@ exports.getMovimientos = async (req, res, next) => {
     const [entradas] = await connection.query(
       `SELECT 'Entrada' as Tipo, Fecha, Cantidad, NULL as Referencia 
        FROM Movimiento_Entrada 
-       WHERE ID_Producto = ?`,
+       WHERE idproducto = ?`,
       [producto_id]
     );
 
     const [salidas] = await connection.query(
       `SELECT 'Salida' as Tipo, Fecha, Cantidad, Referencia 
        FROM Movimiento_Salida 
-       WHERE ID_Producto = ?`,
+       WHERE idproducto = ?`,
       [producto_id]
     );
 
@@ -185,7 +185,7 @@ exports.getMovimientos = async (req, res, next) => {
   }
 };
 
-// Productos con stock bajo
+// productos con stock bajo
 exports.stockBajo = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
@@ -193,13 +193,13 @@ exports.stockBajo = async (req, res, next) => {
 
     const [productos] = await connection.query(`
       SELECT 
-        p.ID_Producto,
+        p.idproducto,
         p.Nombre,
         i.Cantidad_Actual,
         i.Cantidad_Reservada,
         (i.Cantidad_Actual - i.Cantidad_Reservada) as Disponible
-      FROM Producto p
-      INNER JOIN Inventario i ON p.ID_Producto = i.ID_Producto
+      FROM producto p
+      INNER JOIN inventario i ON p.idproducto = i.idproducto
       WHERE (i.Cantidad_Actual - i.Cantidad_Reservada) < ?
       ORDER BY Disponible ASC
     `, [limite]);

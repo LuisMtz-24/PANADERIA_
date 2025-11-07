@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos - La Desesperanza</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>🛒 Gestión de Pedidos</h1>
+      <div class="user-info">
+        <span id="userName">Usuario</span>
+        <button onclick="logout()" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="dashboard-nav">
+    <ul>
+      <li><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="productos.html">🍞 productos</a></li>
+      <li><a href="inventario.html">📦 inventario</a></li>
+      <li><a href="clientes.html">👥 Clientes</a></li>
+      <li><a href="pedidos.html" class="active">🛒 Pedidos</a></li>
+    </ul>
+  </nav>
+
+  <main class="dashboard-content">
+    <section style="background: rgba(45, 27, 0, 0.8); padding: 20px; border-radius: 15px; margin-bottom: 30px;">
+      <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+        <input type="text" id="searchPedidos" placeholder="🔍 Buscar pedidos..." 
+          style="flex: 1; min-width: 250px; padding: 10px; border-radius: 8px; border: 2px solid rgba(255, 149, 0, 0.3); background: rgba(0, 0, 0, 0.3); color: var(--color-light);">
+        <select id="filterEstado" onchange="filterByEstado()" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color: var(--color-light); border: 2px solid rgba(255, 149, 0, 0.3);">
+          <option value="">Todos los estados</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="En Preparación">En Preparación</option>
+          <option value="En Camino">En Camino</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+      </div>
+    </section>
+
+    <div class="table-container" style="background: rgba(45, 27, 0, 0.8); padding: 30px; border-radius: 15px;">
+      <table id="tablaPedidos">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>productos</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="7" class="loading">Cargando pedidos...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal Ver Pedido -->
+  <div id="pedidoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px; overflow-y: auto;">
+    <div style="max-width: 800px; margin: 50px auto; background: rgba(45, 27, 0, 0.95); border-radius: 15px; padding: 30px; border: 2px solid rgba(255, 149, 0, 0.3);">
+      <h2 style="color: var(--color-accent); margin-bottom: 20px;">📋 Detalles del Pedido</h2>
+      <div id="pedidoDetalles"></div>
+      <button onclick="closeModal()" class="btn-logout" style="width: 100%; padding: 12px; margin-top: 20px;">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="js/validaciones.js"></script>
+  <script src="js/pedidos.js"></script>
+</body>
+</html>
